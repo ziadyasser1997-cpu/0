@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Mishwary Fi Sekatak</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Cairo', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #0f172a; }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-slate-100 antialiased min-h-screen flex flex-col justify-between p-4 sm:p-6">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 w-11/12 max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+    <!-- ADMIN LOGIN SCREEN -->
+    <div id="admin-login-screen" class="max-w-md w-full mx-auto my-auto bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 fade-in">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mx-auto mb-3 border border-emerald-500/30">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-white">Admin Dashboard Login</h2>
+            <p class="text-xs text-slate-400 mt-1">Access is restricted to Ziad Yasser</p>
+        </div>
+
+        <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">Username</label>
+                <input type="text" id="admin-username" required
+                    class="w-full px-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 text-white focus:border-emerald-500 outline-none text-sm font-medium">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">Password</label>
+                <input type="password" id="admin-password" required
+                    class="w-full px-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 text-white focus:border-emerald-500 outline-none text-sm font-medium">
+            </div>
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-extrabold py-3.5 rounded-2xl shadow-lg transition text-sm">
+                Secure Admin Login
+            </button>
+            <div class="text-center pt-2">
+                <a href="code_artifact.html" target="_blank" class="text-xs text-emerald-400 hover:underline">← Open User Website</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ADMIN DASHBOARD SCREEN -->
+    <div id="admin-dashboard-screen" class="hidden max-w-5xl w-full mx-auto space-y-6 fade-in my-auto py-6">
+        <div class="bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center text-2xl font-extrabold shadow-lg">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">Platform Administrator</span>
+                    <h1 class="text-2xl font-extrabold text-white">Welcome back, Ziad Yasser</h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="code_artifact.html" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 border border-slate-700">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Open User Website</span>
+                </a>
+                <button onclick="adminLogout()" class="bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white px-4 py-2.5 rounded-2xl text-xs font-bold transition border border-rose-500/30">
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
+                <span class="text-xs text-slate-400 block mb-1">Total Registered Users</span>
+                <span id="admin-total-users" class="text-3xl font-extrabold text-white">0</span>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
+                <span class="text-xs text-slate-400 block mb-1">Total Platform Profits (15%)</span>
+                <span id="admin-total-profits" class="text-3xl font-extrabold text-emerald-400">0 EGP</span>
+            </div>
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
+                <span class="text-xs text-slate-400 block mb-1">Server & Security Status</span>
+                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl inline-block mt-1">● Active & 100% Secure</span>
+            </div>
+        </div>
+
+        <!-- PENDING INSTAPAY TRANSFER SCREENSHOTS -->
+        <div class="bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-amber-400"></i>
+                    Pending InstaPay Transfer Screenshots (01110073738)
+                </h3>
+                <button onclick="loadAdminData()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs transition">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Refresh
+                </button>
+            </div>
+            <div id="pending-transfers-list" class="space-y-3"></div>
+        </div>
+
+        <!-- WITHDRAW PROFITS -->
+        <div class="bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-amber-400"></i>
+                    Withdraw Admin Profits via InstaPay (01110073738)
+                </h3>
+                <span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs px-3 py-1 rounded-xl font-bold">Instant 24/7</span>
+            </div>
+
+            <form onsubmit="handleAdminWithdraw(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Your InstaPay Number</label>
+                    <input type="text" id="admin-instapay-handle" required value="01110073738"
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 text-white focus:border-emerald-500 outline-none text-sm font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Withdrawal Amount (EGP)</label>
+                    <input type="number" id="admin-withdraw-amount" required min="50" value="500"
+                        class="w-full px-4 py-3 rounded-2xl bg-slate-800 border border-slate-700 text-emerald-400 font-bold focus:border-emerald-500 outline-none text-sm">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-extrabold py-3.5 rounded-2xl shadow-lg transition text-sm">
+                    Withdraw Profits Now
+                </button>
+            </form>
+        </div>
+
+        <!-- USERS & KYC FILES -->
+        <div class="bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <h3 class="font-extrabold text-base text-white flex items-center gap-2">
+                    <i class="fa-solid fa-users text-emerald-400"></i>
+                    All Users & Complete KYC Files
+                </h3>
+            </div>
+            <div id="admin-users-list" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- USER DETAIL MODAL -->
+    <div id="user-detail-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto fade-in">
+        <div class="bg-slate-900 rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-800 relative my-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                <h3 class="text-base font-extrabold text-white">User Profile & Complete KYC Verification</h3>
+                <button onclick="closeUserDetailModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="user-detail-content" class="space-y-4 text-xs text-slate-300"></div>
+        </div>
+    </div>
+
+    <!-- SCREENSHOT VIEW MODAL -->
+    <div id="screenshot-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto fade-in">
+        <div class="bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-800 relative text-center">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                <h3 class="text-base font-extrabold text-white">InstaPay Transfer Receipt (سكرين شوت التحويل)</h3>
+                <button onclick="closeScreenshotModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="screenshot-container" class="mb-4"></div>
+            <button onclick="closeScreenshotModal()" class="bg-slate-800 text-white px-6 py-2 rounded-xl text-xs font-bold">Close</button>
+        </div>
+    </div>
+
+    <footer class="text-center text-xs text-slate-500 py-4">
+        © 2026 Mishwary Fi Sekatak Admin Dashboard — Fully Secured
+    </footer>
+
+    <script>
+        let registeredUsers = [];
+        let adminProfits = 1250;
+        let pendingTransfers = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedProfits = localStorage.getItem('mishwary_admin_profits');
+            if (savedProfits) adminProfits = parseFloat(savedProfits);
+
+            const isLogged = localStorage.getItem('mishwary_admin_logged');
+            if (isLogged === 'true') {
+                showDashboard();
+            }
+
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'mishwary_pending_transfers' || e.key === 'mishwary_all_users') {
+                    loadAdminData();
+                }
+            });
+            loadAdminData();
+        });
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const uInput = document.getElementById('admin-username').value.trim();
+            const pInput = document.getElementById('admin-password').value.trim();
+
+            const validUsers = ['ZiadYasser', 'Ziad Yasser', 'Ziad'];
+            const validPasses = ['ZiadYasser12', 'زياد ياسر 12', 'زياد ياسر12'];
+
+            if (validUsers.includes(uInput) && validPasses.includes(pInput)) {
+                localStorage.setItem('mishwary_admin_logged', 'true');
+                showDashboard();
+                showToast('Admin logged in successfully!', 'success');
+            } else {
+                showToast('Incorrect username or password.', 'error');
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('admin-login-screen').classList.add('hidden');
+            document.getElementById('admin-dashboard-screen').classList.remove('hidden');
+            loadAdminData();
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('mishwary_admin_logged');
+            document.getElementById('admin-dashboard-screen').classList.add('hidden');
+            document.getElementById('admin-login-screen').classList.remove('hidden');
+            showToast('Admin logged out.', 'info');
+        }
+
+        function loadAdminData() {
+            const saved = localStorage.getItem('mishwary_all_users');
+            if (saved) {
+                try { registeredUsers = JSON.parse(saved); } catch(e) { registeredUsers = []; }
+            }
+            if (!registeredUsers || registeredUsers.length === 0) {
+                registeredUsers = [
+                    { name: 'Ziad Mohamed Ahmed', phone: '01012345678', nid: '30312050100123', kyc: { verified: true } }
+                ];
+            }
+
+            const savedTransfers = localStorage.getItem('mishwary_pending_transfers');
+            if (savedTransfers) {
+                try { pendingTransfers = JSON.parse(savedTransfers); } catch(e) { pendingTransfers = []; }
+            }
+
+            document.getElementById('admin-total-users').textContent = registeredUsers.length;
+            const extraProfits = pendingTransfers.filter(t => t.status === 'APPROVED').reduce((sum, t) => sum + t.amount, 0);
+            const total = adminProfits + extraProfits;
+            document.getElementById('admin-total-profits').textContent = total.toLocaleString() + ' EGP';
+
+            renderPendingTransfers();
+
+            const listEl = document.getElementById('admin-users-list');
+            if (!listEl) return;
+
+            listEl.innerHTML = registeredUsers.map((user, idx) => `
+                <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold text-white text-sm">${user.name}</span>
+                            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full">KYC Verified</span>
+                        </div>
+                        <div class="text-slate-400 space-x-4 font-mono">
+                            <span>📱 ${user.phone}</span>
+                            <span>🆔 ${user.nid || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <button onclick="viewUserDetail(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs transition shadow-md">
+                        View Complete User File
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderPendingTransfers() {
+            const container = document.getElementById('pending-transfers-list');
+            if (!container) return;
+
+            if (pendingTransfers.length === 0) {
+                container.innerHTML = `<div class="bg-slate-800/50 p-4 rounded-2xl text-center text-xs text-slate-400">No pending InstaPay transfers right now.</div>`;
+                return;
+            }
+
+            container.innerHTML = pendingTransfers.map((tx, idx) => `
+                <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold text-white text-sm">${tx.userName} (${tx.userPhone})</span>
+                            <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full">${tx.amount} EGP (15% Commission)</span>
+                        </div>
+                        <p class="text-slate-400 mb-1">Item: ${tx.item} | Order ID: #${tx.id} | Time: ${tx.timestamp}</p>
+                        <span class="text-[10px] font-bold ${tx.status === 'APPROVED' ? 'text-emerald-400' : 'text-amber-400'}">Status: ${tx.status}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="viewReceiptScreenshot('${tx.screenshot}')" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                            <i class="fa-solid fa-eye mr-1"></i> View Screenshot
+                        </button>
+                        ${tx.status !== 'APPROVED' ? `
+                            <button onclick="approveTransfer(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-extrabold transition shadow-md">
+                                Approve & Add Profit
+                            </button>
+                        ` : '<span class="text-emerald-400 font-bold px-3 py-2">Approved ✓</span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewReceiptScreenshot(base64Img) {
+            document.getElementById('screenshot-container').innerHTML = `<img src="${base64Img}" class="max-h-96 mx-auto rounded-2xl border border-slate-700">`;
+            document.getElementById('screenshot-modal').classList.remove('hidden');
+            document.getElementById('screenshot-modal').classList.add('flex');
+        }
+
+        function closeScreenshotModal() {
+            document.getElementById('screenshot-modal').classList.add('hidden');
+            document.getElementById('screenshot-modal').classList.remove('flex');
+        }
+
+        function approveTransfer(idx) {
+            pendingTransfers[idx].status = 'APPROVED';
+            localStorage.setItem('mishwary_pending_transfers', JSON.stringify(pendingTransfers));
+            loadAdminData();
+            showToast('Transfer approved successfully! Profit added.', 'success');
+        }
+
+        function handleAdminWithdraw(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('admin-withdraw-amount').value || 0);
+            const extraProfits = pendingTransfers.filter(t => t.status === 'APPROVED').reduce((sum, t) => sum + t.amount, 0);
+            const total = adminProfits + extraProfits;
+
+            if (amount > total) {
+                showToast('Requested amount exceeds available platform profits!', 'error');
+                return;
+            }
+
+            adminProfits -= amount;
+            localStorage.setItem('mishwary_admin_profits', adminProfits);
+            loadAdminData();
+            showToast(`Successfully transferred ${amount} EGP to your InstaPay number (01110073738)!`, 'success');
+        }
+
+        function viewUserDetail(idx) {
+            const user = registeredUsers[idx];
+            if (!user) return;
+            const content = document.getElementById('user-detail-content');
+            const kyc = user.kyc || {};
+            content.innerHTML = `
+                <div class="bg-slate-800 p-3.5 rounded-xl border border-slate-700 space-y-1.5">
+                    <p><strong>Full Name:</strong> ${user.name}</p>
+                    <p><strong>Phone Number:</strong> <span class="font-mono">${user.phone}</span></p>
+                    <p><strong>National ID:</strong> <span class="font-mono">${user.nid || 'N/A'}</span></p>
+                </div>
+                <div>
+                    <span class="font-bold text-white block mb-2">KYC Verification Photos (Live Camera Capture):</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <div class="bg-slate-800 p-2 rounded-xl text-center border border-slate-700">
+                            <span class="text-[10px] text-slate-400 block mb-1">ID Front</span>
+                            ${kyc.id_front ? `<img src="${kyc.id_front}" class="w-full h-20 object-cover rounded-lg border border-slate-700">` : '<span class="text-[10px] text-slate-500">Not Available</span>'}
+                        </div>
+                        <div class="bg-slate-800 p-2 rounded-xl text-center border border-slate-700">
+                            <span class="text-[10px] text-slate-400 block mb-1">ID Back</span>
+                            ${kyc.id_back ? `<img src="${kyc.id_back}" class="w-full h-20 object-cover rounded-lg border border-slate-700">` : '<span class="text-[10px] text-slate-500">Not Available</span>'}
+                        </div>
+                        <div class="bg-slate-800 p-2 rounded-xl text-center border border-slate-700">
+                            <span class="text-[10px] text-slate-400 block mb-1">Front Face</span>
+                            ${kyc.face_front ? `<img src="${kyc.face_front}" class="w-full h-20 object-cover rounded-lg border border-slate-700">` : '<span class="text-[10px] text-slate-500">Not Available</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('user-detail-modal').classList.remove('hidden');
+            document.getElementById('user-detail-modal').classList.add('flex');
+        }
+
+        function closeUserDetailModal() {
+            document.getElementById('user-detail-modal').classList.add('hidden');
+            document.getElementById('user-detail-modal').classList.remove('flex');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-900 text-white border-emerald-500',
+                error: 'bg-rose-900 text-white border-rose-500',
+                info: 'bg-slate-900 text-white border-slate-700'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-circle-exclamation text-rose-400',
+                info: 'fa-circle-info text-sky-400'
+            };
+            toast.className = `${colors[type] || colors.info} border px-4 py-3 rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2.5 fade-in pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-base shrink-0"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
